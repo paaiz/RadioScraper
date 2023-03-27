@@ -12,12 +12,17 @@ const fetchRadio = async (page = 0) => {
   $("#stations")
     .find(".stations__station")
     .each((i, el) => {
-      const getRadioStream = $(el).find(".station_play").attr("stream");
-      const getRadioName = $(el).find(".station_play").attr("radioname");
-      const getRadioImg = $(el).find(".station_play").attr("radioimg");
+      const findStation = $(el).find(".station_play");
+
+      const getRadioName = $(el).find(".station__title__name").text();
+      const getRadioId = $(el).attr("radioid");
+      const getRadioStream = findStation.attr("stream");
+      const getRadioImg = findStation.attr("radioimg");
 
       const radioObjects = {
-        radioName: getRadioName,
+        nativeRadioName: getRadioName,
+        radioName: getRadioName.toLowerCase().replace(/ /g, "_"),
+        radioId: getRadioId,
         streamURL: getRadioStream,
         radioImg: "https:" + getRadioImg,
       };
