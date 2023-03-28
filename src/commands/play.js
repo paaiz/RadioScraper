@@ -23,12 +23,16 @@ module.exports = {
    */
   callback: async (client, interaction) => {
     if (!fs.existsSync(path.join(__dirname, `../assets/radio-list.json`))) {
-      return message.channel.send({ content: "There are no radio list being made!" });
+      return interaction.reply({ content: "There are no radio list being made!", ephemeral: true });
     }
 
     const getRadio = JSON.parse(
       fs.readFileSync(path.join(__dirname, `../assets/radio-list.json`), { encoding: "utf-8" })
     );
+
+    if (getRadio.length === 0) {
+      return interaction.reply({ content: "There are no radio data!", ephemeral: true });
+    }
 
     const radioList = getRadio.map((item) => ({
       label: item.nativeRadioName,
