@@ -2,12 +2,19 @@ require("dotenv/config");
 
 const { Client, Collection } = require("discord.js");
 const client = new Client({
-  intents: ["Guilds", "DirectMessages", "GuildMessages", "MessageContent", "GuildMembers"],
+  intents: [
+    "Guilds",
+    "DirectMessages",
+    "GuildMessages",
+    "MessageContent",
+    "GuildMembers",
+    "GuildVoiceStates",
+  ],
 });
 
 const { eventListener } = require("../src/utils/handler");
-eventListener(client);
 
 client.commands = new Collection();
+eventListener(client);
 
 client.login(process.env.BOT_TOKEN);
