@@ -20,6 +20,7 @@ const {
 
 const fs = require("fs");
 const path = require("path");
+const axios = require("axios");
 const { activeSessions } = require("../utils/session");
 const logger = require("../utils/logger");
 const { setNowPlaying, clearNowPlaying } = require("../utils/status");
@@ -309,6 +310,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     const oldSession = activeSessions.get(guildId);
     try {
       oldSession.collector?.stop("replaced");
+      oldSession.stream?.destroy();
       oldSession.player.stop();
       oldSession.connection.destroy();
     } catch {}
@@ -332,8 +334,26 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     });
   }
 
+  let audioStream;
+  try {
+    const response = await axios.get(radioObj.streamURL, {
+      responseType: "stream",
+      headers: {
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+      },
+    });
+    audioStream = response.data;
+  } catch (err) {
+    logger.error("Failed to fetch radio stream:", err.message);
+    connection.destroy();
+    return interaction.editReply({
+      content: `Failed to connect to station stream: ${err.message}`,
+    });
+  }
+
   const player = createAudioPlayer();
-  const resource = createAudioResource(radioObj.streamURL, {
+  const resource = createAudioResource(audioStream, {
     inputType: StreamType.Arbitrary,
     inlineVolume: true,
   });
@@ -342,6 +362,14 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
 
   connection.subscribe(player);
   player.play(resource);
+
+  audioStream.on("error", (err) => {
+    logger.error(`Audio stream error: ${err.message}`);
+  });
+
+  resource.playStream.on("error", (err) => {
+    logger.error(`Resource playStream error: ${err.message}`);
+  });
 
   player.on("stateChange", (oldState, newState) => {
     logger.log(`AudioPlayer state: ${oldState.status} -> ${newState.status}`);
@@ -368,6 +396,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     connection,
     player,
     resource,
+    stream: audioStream,
     collector: controlCollector,
     message: controlMessage,
     radioObj,
@@ -423,6 +452,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
         await i.reply({ content: "Failed to resume playback.", ephemeral: true });
       }
     } else if (i.customId === "btn_stop") {
+      session.stream?.destroy();
       player.stop();
       connection.destroy();
       activeSessions.delete(guildId);

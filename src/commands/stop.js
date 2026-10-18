@@ -25,6 +25,7 @@ module.exports = {
 
     try {
       session.collector?.stop("stopped");
+      session.stream?.destroy();
       session.player.stop();
       session.connection.destroy();
     } catch {}
