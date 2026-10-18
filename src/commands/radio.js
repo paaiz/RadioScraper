@@ -334,11 +334,11 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     });
   }
 
-  let audioStream;
+  let audioStream = null;
   try {
     const response = await axios.get(radioObj.streamURL, {
       responseType: "stream",
-      timeout: 15000,
+      timeout: 10000,
       maxRedirects: 5,
       headers: {
         "User-Agent":
@@ -348,15 +348,11 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     });
     audioStream = response.data;
   } catch (err) {
-    logger.error("Failed to fetch radio stream:", err.message);
-    connection.destroy();
-    return interaction.editReply({
-      content: `Failed to connect to station stream: ${err.message}`,
-    });
+    logger.warn(`Axios stream connection failed (${err.message}), falling back to direct stream...`);
   }
 
   const player = createAudioPlayer();
-  const resource = createAudioResource(audioStream, {
+  const resource = createAudioResource(audioStream || radioObj.streamURL, {
     inputType: StreamType.Arbitrary,
     inlineVolume: true,
   });
@@ -366,9 +362,11 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
   connection.subscribe(player);
   player.play(resource);
 
-  audioStream.on("error", (err) => {
-    logger.error(`Audio stream error: ${err.message}`);
-  });
+  if (audioStream) {
+    audioStream.on("error", (err) => {
+      logger.error(`Audio stream error: ${err.message}`);
+    });
+  }
 
   resource.playStream.on("error", (err) => {
     logger.error(`Resource playStream error: ${err.message}`);
