@@ -1,5 +1,6 @@
 const fs = require("fs");
 const path = require("path");
+const logger = require("./logger");
 
 const getAllFiles = (path) => {
   const files = fs.readdirSync(path, {
@@ -35,7 +36,7 @@ const loadSlashCommands = async (client) => {
     client.commands.set(commandName, commandObject);
   }
 
-  console.log(`[${new Date().toLocaleString()}] - Loaded ${files.length} (/) commands!`);
+  logger.log(`Loaded ${files.length} (/) commands!`);
 };
 
 const eventListener = (client) => {

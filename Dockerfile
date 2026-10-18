@@ -1,0 +1,12 @@
+FROM node:20-slim
+
+WORKDIR /app
+
+# Install dependencies terlebih dahulu (layer caching)
+COPY package*.json ./
+RUN npm ci --omit=dev
+
+# Copy source code
+COPY src/ ./src/
+
+CMD ["node", "src/index.js"]
