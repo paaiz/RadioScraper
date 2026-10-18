@@ -33,7 +33,7 @@ When a station is playing, an interactive control panel is sent to the channel:
 ```
 
 - **◀ / ▶ Stations** — navigate through all available stations in the select menu
-- **🔉 Vol- / 🔊 Vol+** — adjust volume in 10% steps (range: 0%–200%)
+- **🔉 Vol- / 🔊 Vol+** — adjust volume in 10% steps (default: 10%, range: 0%–200%)
 - **Pause / Resume** — pause and resume the stream
 - **Stop** — disconnect the bot from voice
 
@@ -155,7 +155,8 @@ src/
 │   ├── handler.js        # Auto-loader for commands and events
 │   ├── scrape.js         # Web scraper (axios + cheerio)
 │   ├── session.js        # Shared active session store
-│   └── logger.js         # Logging utility
+│   ├── logger.js         # Logging utility
+│   └── status.js         # Bot rich presence / status rotation manager
 └── assets/
     └── radio-list.json   # Local station database
 ```

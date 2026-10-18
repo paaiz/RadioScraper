@@ -1,4 +1,5 @@
 const { activeSessions } = require("../utils/session");
+const { clearNowPlaying } = require("../utils/status");
 
 module.exports = {
   name: "stop",
@@ -33,6 +34,7 @@ module.exports = {
       .catch(() => {});
 
     activeSessions.delete(guildId);
+    clearNowPlaying(client);
 
     await interaction.reply({
       content: "Playback stopped.",

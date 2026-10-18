@@ -1,6 +1,7 @@
 const { loadSlashCommands } = require("../utils/handler");
 const { fetchRadio } = require("../utils/scrape");
 const logger = require("../utils/logger");
+const { startIdleRotation } = require("../utils/status");
 const fs = require("fs");
 const path = require("path");
 
@@ -54,6 +55,7 @@ module.exports = async (client) => {
   }
 
   logger.log(`${client.user.tag} is ready!`);
+  startIdleRotation(client);
 
   autoRefreshRadio().catch((err) => logger.error("Auto-refresh failed:", err));
 };
