@@ -338,9 +338,12 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
   try {
     const response = await axios.get(radioObj.streamURL, {
       responseType: "stream",
+      timeout: 15000,
+      maxRedirects: 5,
       headers: {
         "User-Agent":
           "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
+        Accept: "*/*",
       },
     });
     audioStream = response.data;

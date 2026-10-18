@@ -1,4 +1,6 @@
 require("dotenv/config");
+const dns = require("node:dns");
+dns.setDefaultResultOrder("ipv4first");
 
 const { Client, Collection } = require("discord.js");
 const client = new Client({
