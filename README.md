@@ -18,7 +18,7 @@ A Discord bot that scrapes Indonesian radio stations from [onlineradiobox.com](h
 | `/play station name:<query>` | Search and play a station directly (with autocomplete) |
 | `/stop` | Stop the current playback and disconnect from voice |
 | `/nowplaying` | Show info about the currently playing station |
-| `/radio [page]` | Scrape and update the station database from a specific page |
+| `/radio [page]` | Scrape and update the station database from a specific page (Owner only) |
 
 ## Control Panel
 
