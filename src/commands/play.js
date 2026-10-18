@@ -22,8 +22,10 @@ const fs = require("fs");
 const path = require("path");
 const { activeSessions } = require("../utils/session");
 const logger = require("../utils/logger");
+const { setNowPlaying, clearNowPlaying } = require("../utils/status");
 
 const ITEMS_PER_PAGE = 25;
+const VOLUME_DEFAULT = 10;
 const VOLUME_STEP = 10;
 const VOLUME_MIN = 0;
 const VOLUME_MAX = 200;
@@ -223,7 +225,7 @@ const buildControlCard = (
   allRadio,
   statusColor = "#2B2D31",
   stationPage = 0,
-  volume = 100,
+  volume = VOLUME_DEFAULT,
 ) => {
   const totalStationPages = Math.ceil(allRadio.length / ITEMS_PER_PAGE);
   const stationStart = stationPage * ITEMS_PER_PAGE;
@@ -327,7 +329,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     inlineVolume: true,
   });
 
-  resource.volume.setVolume(1);
+  resource.volume.setVolume(VOLUME_DEFAULT / 100);
 
   player.play(resource);
   connection.subscribe(player);
@@ -340,7 +342,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     allRadio,
     "#57F287",
     0,
-    100,
+    VOLUME_DEFAULT,
   );
 
   let controlMessage = await interaction.editReply(payload);
@@ -360,8 +362,10 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     user: interaction.user,
     allRadio,
     stationPage: 0,
-    volume: 100,
+    volume: VOLUME_DEFAULT,
   });
+
+  setNowPlaying(interaction.client, radioObj.nativeRadioName);
 
   controlCollector.on("collect", async (i) => {
     const session = activeSessions.get(guildId);
@@ -410,6 +414,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
       connection.destroy();
       activeSessions.delete(guildId);
       controlCollector.stop("stopped");
+      clearNowPlaying(i.client);
 
       await i.update({
         content: "Playback stopped.",
@@ -510,7 +515,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
           allRadio,
           "#ED4245",
           session?.stationPage ?? 0,
-          session?.volume ?? 100,
+          session?.volume ?? VOLUME_DEFAULT,
         ),
       )
       .catch(() => {});
@@ -526,6 +531,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
       const session = activeSessions.get(guildId);
       connection.destroy();
       activeSessions.delete(guildId);
+      clearNowPlaying(interaction.client);
       controlMessage
         .edit(
           buildControlCard(
@@ -536,7 +542,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
             allRadio,
             "#ED4245",
             session?.stationPage ?? 0,
-            session?.volume ?? 100,
+            session?.volume ?? VOLUME_DEFAULT,
           ),
         )
         .catch(() => {});
