@@ -3,7 +3,7 @@
         "nativeRadioName": "Prambors FM",
         "radioName": "prambors_fm",
         "radioId": "18687",
-        "streamURL": "http://masima.rastream.com/masima-pramborsjakarta?",
+        "streamURL": "https://stream.rcs.revma.com/h77wwp48kxcwv",
         "radioImg": "https://cdn.onlineradiobox.com/img/l/7/18687.v46.png"
     },
     {
@@ -17,7 +17,7 @@
         "nativeRadioName": "Delta FM",
         "radioName": "delta_fm",
         "radioId": "58058",
-        "streamURL": "http://masima.rastream.com/masima-deltajakarta?",
+        "streamURL": "https://stream.rcs.revma.com/k02rmq48kxcwv",
         "radioImg": "https://cdn.onlineradiobox.com/img/l/8/58058.v32.png"
     },
     {
@@ -31,7 +31,7 @@
         "nativeRadioName": "FeMale Radio",
         "radioName": "female_radio",
         "radioId": "60996",
-        "streamURL": "http://masima.rastream.com/masima-femalejakarta?",
+        "streamURL": "https://stream.rcs.revma.com/9thenqqd2ncwv",
         "radioImg": "https://cdn.onlineradiobox.com/img/l/6/60996.v19.png"
     },
     {

@@ -334,25 +334,8 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     });
   }
 
-  let audioStream = null;
-  try {
-    const response = await axios.get(radioObj.streamURL, {
-      responseType: "stream",
-      timeout: 10000,
-      maxRedirects: 5,
-      headers: {
-        "User-Agent":
-          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36",
-        Accept: "*/*",
-      },
-    });
-    audioStream = response.data;
-  } catch (err) {
-    logger.warn(`Axios stream connection failed (${err.message}), falling back to direct stream...`);
-  }
-
   const player = createAudioPlayer();
-  const resource = createAudioResource(audioStream || radioObj.streamURL, {
+  const resource = createAudioResource(radioObj.streamURL, {
     inputType: StreamType.Arbitrary,
     inlineVolume: true,
   });
@@ -361,16 +344,6 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
 
   connection.subscribe(player);
   player.play(resource);
-
-  if (audioStream) {
-    audioStream.on("error", (err) => {
-      logger.error(`Audio stream error: ${err.message}`);
-    });
-  }
-
-  resource.playStream.on("error", (err) => {
-    logger.error(`Resource playStream error: ${err.message}`);
-  });
 
   player.on("stateChange", (oldState, newState) => {
     logger.log(`AudioPlayer state: ${oldState.status} -> ${newState.status}`);
@@ -397,7 +370,6 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     connection,
     player,
     resource,
-    stream: audioStream,
     collector: controlCollector,
     message: controlMessage,
     radioObj,
