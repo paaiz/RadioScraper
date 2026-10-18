@@ -2,21 +2,21 @@ const fs = require("fs");
 const path = require("path");
 const logger = require("./logger");
 
-const getAllFiles = (path) => {
-  const files = fs.readdirSync(path, {
+const getAllFiles = (dirPath) => {
+  const files = fs.readdirSync(dirPath, {
     withFileTypes: true,
   });
   let commandFiles = [];
 
   for (const file of files) {
-    const fileName = `${path}\\${file.name}`;
+    const filePath = path.join(dirPath, file.name);
 
     if (file.isDirectory()) {
-      commandFiles = [...commandFiles, ...getAllFiles(fileName)];
+      commandFiles = [...commandFiles, ...getAllFiles(filePath)];
       continue;
     }
 
-    commandFiles.push(fileName);
+    commandFiles.push(filePath);
   }
 
   return commandFiles;
