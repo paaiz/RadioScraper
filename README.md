@@ -50,7 +50,7 @@ When a station is playing, an interactive control panel is sent to the channel:
 1. Clone the repository
 
    ```bash
-   git clone https://github.com/username/RadioScraper.git
+   git clone https://github.com/paaiz/RadioScraper.git
    cd RadioScraper
    ```
 
