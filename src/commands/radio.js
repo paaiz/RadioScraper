@@ -322,6 +322,16 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     selfDeaf: true,
   });
 
+  try {
+    await entersState(connection, VoiceConnectionStatus.Ready, 20_000);
+  } catch (err) {
+    logger.error("Failed to establish voice connection within 20s:", err);
+    connection.destroy();
+    return interaction.editReply({
+      content: "Failed to establish voice connection. Please try again.",
+    });
+  }
+
   const player = createAudioPlayer();
   const resource = createAudioResource(radioObj.streamURL, {
     inputType: StreamType.Arbitrary,
@@ -330,8 +340,12 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
 
   resource.volume.setVolume(VOLUME_DEFAULT / 100);
 
-  player.play(resource);
   connection.subscribe(player);
+  player.play(resource);
+
+  player.on("stateChange", (oldState, newState) => {
+    logger.log(`AudioPlayer state: ${oldState.status} -> ${newState.status}`);
+  });
 
   const payload = buildControlCard(
     radioObj,
