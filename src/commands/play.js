@@ -138,12 +138,12 @@ module.exports = {
           new ButtonBuilder()
             .setCustomId("list_prev")
             .setLabel("Previous")
-            .setStyle(ButtonStyle.Secondary)
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(page === 0),
           new ButtonBuilder()
             .setCustomId("list_next")
             .setLabel("Next")
-            .setStyle(ButtonStyle.Secondary)
+            .setStyle(ButtonStyle.Primary)
             .setDisabled(page >= totalPages - 1),
         );
 
@@ -261,17 +261,34 @@ const buildControlCard = (
       .addOptions(selectOptions),
   );
 
+  // Row 2: Station pagination (Biru / Primary)
   const stationNavRow = new ActionRowBuilder().addComponents(
     new ButtonBuilder()
       .setCustomId("btn_station_prev")
       .setLabel("◀ Stations")
-      .setStyle(ButtonStyle.Secondary)
+      .setStyle(ButtonStyle.Primary)
       .setDisabled(stationPage === 0),
     new ButtonBuilder()
       .setCustomId("btn_station_next")
       .setLabel("Stations ▶")
-      .setStyle(ButtonStyle.Secondary)
+      .setStyle(ButtonStyle.Primary)
       .setDisabled(stationPage >= totalStationPages - 1),
+  );
+
+  // Row 3: Radio playback & volume control
+  const controlRow = new ActionRowBuilder().addComponents(
+    new ButtonBuilder()
+      .setCustomId("btn_pause")
+      .setLabel("Pause")
+      .setStyle(ButtonStyle.Secondary),
+    new ButtonBuilder()
+      .setCustomId("btn_resume")
+      .setLabel("Resume")
+      .setStyle(ButtonStyle.Success),
+    new ButtonBuilder()
+      .setCustomId("btn_stop")
+      .setLabel("Stop")
+      .setStyle(ButtonStyle.Danger),
     new ButtonBuilder()
       .setCustomId("btn_vol_down")
       .setLabel("🔉 Vol -")
@@ -282,15 +299,6 @@ const buildControlCard = (
       .setLabel("🔊 Vol +")
       .setStyle(ButtonStyle.Secondary)
       .setDisabled(volume >= VOLUME_MAX),
-  );
-
-  const controlRow = new ActionRowBuilder().addComponents(
-    new ButtonBuilder().setCustomId("btn_pause").setLabel("Pause").setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder()
-      .setCustomId("btn_resume")
-      .setLabel("Resume")
-      .setStyle(ButtonStyle.Secondary),
-    new ButtonBuilder().setCustomId("btn_stop").setLabel("Stop").setStyle(ButtonStyle.Danger),
   );
 
   return { embeds: [embed], components: [selectRow, stationNavRow, controlRow] };

@@ -25,11 +25,11 @@ A Discord bot that scrapes Indonesian radio stations from [onlineradiobox.com](h
 When a station is playing, an interactive control panel is sent to the channel:
 
 ```
-┌─────────────────────────────────────────┐
-│  [Select menu] Change station...        │
-│  ◀ Stations   Stations ▶   🔉 Vol-   🔊 Vol+  │
-│  Pause        Resume        Stop        │
-└─────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────┐
+│  [Select menu] Change station...                       │
+│  ◀ Stations (Blue)            Stations ▶ (Blue)        │
+│  Pause (Grey)  Resume (Green)  Stop (Red)  🔉 -   🔊 + │
+└────────────────────────────────────────────────────────┘
 ```
 
 - **◀ / ▶ Stations** — navigate through all available stations in the select menu
