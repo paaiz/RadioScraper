@@ -26,10 +26,14 @@ const logger = require("../utils/logger");
 const { setNowPlaying, clearNowPlaying } = require("../utils/status");
 
 let ffmpegBin = "ffmpeg";
-try {
-  ffmpegBin = require("ffmpeg-static") || "ffmpeg";
-} catch {
+if (fs.existsSync("/usr/bin/ffmpeg") || fs.existsSync("/usr/local/bin/ffmpeg")) {
   ffmpegBin = "ffmpeg";
+} else {
+  try {
+    ffmpegBin = require("ffmpeg-static") || "ffmpeg";
+  } catch {
+    ffmpegBin = "ffmpeg";
+  }
 }
 
 const ITEMS_PER_PAGE = 25;
@@ -364,15 +368,11 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
   ]);
 
   ffmpegProcess.stderr.on("data", (data) => {
-    const msg = data.toString();
-    if (
-      msg.includes("Error") ||
-      msg.includes("Server returned") ||
-      msg.includes("Connection refused") ||
-      msg.includes("403")
-    ) {
-      logger.error(`[FFmpeg] ${msg.trim()}`);
-    }
+    logger.log(`[FFmpeg] ${data.toString().trim()}`);
+  });
+
+  ffmpegProcess.on("close", (code, signal) => {
+    logger.log(`[FFmpeg exited] code: ${code}, signal: ${signal}`);
   });
 
   ffmpegProcess.on("error", (err) => {
