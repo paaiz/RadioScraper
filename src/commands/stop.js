@@ -25,7 +25,7 @@ module.exports = {
 
     try {
       session.collector?.stop("stopped");
-      session.stream?.destroy();
+      session.ffmpeg?.kill("SIGKILL");
       session.player.stop();
       session.connection.destroy();
     } catch {}

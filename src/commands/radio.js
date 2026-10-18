@@ -20,10 +20,17 @@ const {
 
 const fs = require("fs");
 const path = require("path");
-const axios = require("axios");
+const { spawn } = require("child_process");
 const { activeSessions } = require("../utils/session");
 const logger = require("../utils/logger");
 const { setNowPlaying, clearNowPlaying } = require("../utils/status");
+
+let ffmpegBin = "ffmpeg";
+try {
+  ffmpegBin = require("ffmpeg-static") || "ffmpeg";
+} catch {
+  ffmpegBin = "ffmpeg";
+}
 
 const ITEMS_PER_PAGE = 25;
 const VOLUME_DEFAULT = 10;
@@ -310,7 +317,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     const oldSession = activeSessions.get(guildId);
     try {
       oldSession.collector?.stop("replaced");
-      oldSession.stream?.destroy();
+      oldSession.ffmpeg?.kill("SIGKILL");
       oldSession.player.stop();
       oldSession.connection.destroy();
     } catch {}
@@ -334,9 +341,47 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     });
   }
 
+  const ffmpegProcess = spawn(ffmpegBin, [
+    "-reconnect",
+    "1",
+    "-reconnect_streamed",
+    "1",
+    "-reconnect_delay_max",
+    "5",
+    "-i",
+    radioObj.streamURL,
+    "-analyzeduration",
+    "5000000",
+    "-probesize",
+    "5000000",
+    "-f",
+    "s16le",
+    "-ar",
+    "48000",
+    "-ac",
+    "2",
+    "pipe:1",
+  ]);
+
+  ffmpegProcess.stderr.on("data", (data) => {
+    const msg = data.toString();
+    if (
+      msg.includes("Error") ||
+      msg.includes("Server returned") ||
+      msg.includes("Connection refused") ||
+      msg.includes("403")
+    ) {
+      logger.error(`[FFmpeg] ${msg.trim()}`);
+    }
+  });
+
+  ffmpegProcess.on("error", (err) => {
+    logger.error(`[FFmpeg spawn error]: ${err.message}`);
+  });
+
   const player = createAudioPlayer();
-  const resource = createAudioResource(radioObj.streamURL, {
-    inputType: StreamType.Arbitrary,
+  const resource = createAudioResource(ffmpegProcess.stdout, {
+    inputType: StreamType.Raw,
     inlineVolume: true,
   });
 
@@ -370,6 +415,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     connection,
     player,
     resource,
+    ffmpeg: ffmpegProcess,
     collector: controlCollector,
     message: controlMessage,
     radioObj,
@@ -425,7 +471,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
         await i.reply({ content: "Failed to resume playback.", ephemeral: true });
       }
     } else if (i.customId === "btn_stop") {
-      session.stream?.destroy();
+      session.ffmpeg?.kill("SIGKILL");
       player.stop();
       connection.destroy();
       activeSessions.delete(guildId);
@@ -545,6 +591,7 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
       ]);
     } catch {
       const session = activeSessions.get(guildId);
+      session?.ffmpeg?.kill("SIGKILL");
       connection.destroy();
       activeSessions.delete(guildId);
       clearNowPlaying(interaction.client);
