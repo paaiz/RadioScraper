@@ -367,9 +367,9 @@ const setupAndPlayRadio = async (interaction, voiceChannel, radioObj, allRadio) 
     "pipe:1",
   ]);
 
-  ffmpegProcess.stderr.on("data", (data) => {
-    logger.log(`[FFmpeg] ${data.toString().trim()}`);
-  });
+  // ffmpegProcess.stderr.on("data", (data) => {
+  //   logger.log(`[FFmpeg] ${data.toString().trim()}`);
+  // });
 
   ffmpegProcess.on("close", (code, signal) => {
     logger.log(`[FFmpeg exited] code: ${code}, signal: ${signal}`);
