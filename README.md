@@ -117,7 +117,7 @@ Each call merges new stations into the existing database without duplicates.
 
 ```bash
 # On the server (first time)
-git clone https://github.com/username/RadioScraper.git
+git clone https://github.com/paaiz/RadioScraper.git
 cd RadioScraper
 nano .env   # fill in BOT_TOKEN
 docker compose up -d --build
